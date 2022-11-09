@@ -1,0 +1,82 @@
+{
+  "name": "kbdev",
+  "image": "dockerhub.bigquant.ai:5000/tools/kbdev:master_latest",
+  "forwardPorts": [],
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--network=host",
+    "--device",
+    "/dev/net/tun:/dev/net/tun"
+  ],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached",
+    "source=/Users/jdliu/.ssh,target=/root/.kbssh,type=bind,consistency=cached",
+    "source=/Users/jdliu/.kube,target=/root/.kube,type=bind,consistency=cached"
+  ],
+  "workspaceMount": "source=/Users/jdliu/code/dev,target=/Users/jdliu/code/dev,type=bind,consistency=cached",
+  "workspaceFolder": "/Users/jdliu/code/dev",
+  "postCreateCommand": "kbdev -s created",
+  "postStartCommand": "kbdev -s started",
+  "postAttachCommand": "kbdev -s attached",
+  "containerEnv": {
+    "KBDEV_README": "http://wiki.bigquant.ai/pages/viewpage.action?pageId=108167170",
+    "KBDEV_AUTO_UPDATE": "True",
+    "KBDEV_CFG_VERSION": "0.1.3",
+    "KBDEV_USERNAME": "jdliu",
+    "KBDEV_DISPLAY_USERNAME": "Jiandong Liu",
+    "LOCAL_WORKSPACE_FOLDER": "/Users/jdliu/code/dev",
+    "LOCAL_HOME": "/Users/jdliu",
+    "LOCAL_HOSTNAME": "jdliudeMacBook-Pro.local",
+    "KBDEV_HOST_OS": "unix",
+    "CONTAINER_WORKSPACE_FOLDER": "/Users/jdliu/code/dev",
+    "DISABLE_AUTO_UPDATE": "true"
+  },
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "ms-python.vscode-pylance",
+    "njpwerner.autodocstring",
+    "aaron-bond.better-comments",
+    "vscode-icons-team.vscode-icons",
+    "gruntfuggly.todo-tree",
+    "dbaeumer.vscode-eslint",
+    "coenraads.bracket-pair-colorizer",
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "jeff-hykin.better-dockerfile-syntax",
+    "visualstudioexptteam.vscodeintellicode",
+    "eamodio.gitlens",
+    "redhat.vscode-yaml",
+    "github.copilot",
+    "nocalhost.nocalhost"
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveTimeout": 3000,
+    "python.sortImports.args": [
+      "-sp isort.cfg",
+      "--src=${workspaceFolder}"
+    ],
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    },
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+      "--line-length=160"
+    ],
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.rightClickBehavior": "paste",
+    "editor.renderWhitespace": "all",
+    "editor.rulers": [
+      160
+    ],
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
+  }
+}

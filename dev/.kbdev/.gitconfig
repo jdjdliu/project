@@ -1,0 +1,15 @@
+[user]
+	name = Jiandong Liu
+	email = jdliu@bigquant.ai
+[oh-my-zsh]
+	hide-status = 1
+	hide-dirty = 1
+[core]
+	trustctime = false
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[credential]
+	helper = "!f() { /root/.vscode-server/bin/c722ca6c7eed3d7987c0d5c3df5c45f6b15e77d1/node /tmp/vscode-remote-containers-a7fbccdf2c876bde907e2e9223eb17bb979ed861.js $*; }; f"
