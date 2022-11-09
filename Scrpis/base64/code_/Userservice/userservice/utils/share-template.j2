@@ -1,0 +1,33 @@
+{%- extends 'basic.tpl' -%}
+{%- block outputs scoped -%}
+    {%- if cell.outputs|filterLogs|length > 0 -%}
+        <div class="jp-OutputArea-log jp-OutputArea-log-fold">
+            <div class="jp-OutputArea-log-header">
+                <span class="p-Widget jp-OutputArea-log-header-title">日志&nbsp;{{ cell.outputs|filterLogs|length }}&nbsp;条，错误日志
+                    <span class="jp-color-red">&nbsp;{{ cell.outputs|filterErrorLogs|length }}&nbsp;</span>条&nbsp;
+                    <span class="arrow"></span>
+                </span>
+            </div>
+            <div class="jp-OutputArea-log-content">
+                {%- for output in cell.outputs -%}
+                    {%- if output.metadata and output.metadata.is_log -%}
+                        {%- for type in output.data -%}
+                            {%- if type == 'text/plain' -%}
+                                <pre class="jp-OutputArea-log-item"><span>{{ output.data['text/plain']|filterTimestamp }} </span><span class="{{ output.metadata.status|lower }}">{{ output.metadata.status }}</span>: {{ output.data['text/plain']|filterRawLog }}</pre>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    {%- endif -%}
+                {%- endfor -%}
+            </div>
+        </div>
+    {%- endif -%}
+    <div class="output-normal">
+        {%- for output in cell.outputs -%}
+            {%- if not (output.metadata and output.metadata.is_log) -%}
+                {%- block output scoped -%}
+                    {{ super() }}
+                {%- endblock output -%}
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+{%- endblock outputs -%}

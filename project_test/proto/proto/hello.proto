@@ -1,0 +1,5 @@
+syntax = 'proto3';
+
+message HelloRequest{
+    string name = 1; //name 表示名称， name的编号是什么1 #可变长编码
+}
