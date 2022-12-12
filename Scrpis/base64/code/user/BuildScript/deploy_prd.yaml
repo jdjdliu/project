@@ -1,0 +1,129 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: aiwe-quantplatform-userservice
+  labels:
+    app: aiwe-quantplatform-userservice
+  namespace: lx58-aiwe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aiwe-quantplatform-userservice
+  template:
+    metadata:
+      labels:
+        app: aiwe-quantplatform-userservice
+    spec:
+      restartPolicy: Always
+      hostAliases:
+        - ip: "11.16.20.138"
+          hostnames:
+            - quantplat2-0
+        - ip: "11.1.231.178"
+          hostnames:
+            - quantplat2-1
+        - ip: "11.16.10.164"
+          hostnames:
+            - quantplat2-2
+      containers:
+        - name: aiwe-quantplatform-userservice
+          livenessProbe: # 一个HTTP GET的liveness probe
+            httpGet:
+              path: /api/userservice/ping
+              port: 8000
+            initialDelaySceonds: 60 # 平台会在第一次探测前等待60s
+            timeoutSeconds: 120
+          readinessProbe: # 一个HTTP GET的readiness probe
+            httpGet:
+              path: /api/userservice/ping
+              port: 8000
+            initialDelaySceonds: 60 # 平台会在第一次探测前等待60s
+            timeoutSeconds: 120
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: MONGO_URL # TODD
+              value: >-
+                mongodb://aiwe:Lh123456%23@quantplat2-0:27017,quantplat2-1:27017,quantplat2-2:27017/aiwe?replicaSet=quantplat2
+            - name: MONGO_DB # TODD
+              value: aiwe
+            - name: DB_URL
+              value: >-
+                mysql://app1:ABOo5C%237A2@lianghua2022.mysql.dbdns.cmbchina.cn:6446/quant_platform
+            - name: JWT_PUBLIC_KEY
+              value: >-
+                0471b56513e3c8f8539bc1690fee2949ac7a13035341cf851377bc869ff3341956ff6e1114b39af643c0d7e3c91b9a6791dfc5fd586dd4b602a2b4aac476b0075d
+            - name: JWT_COOKIE_NAME
+              value: AIWE_QUANTPLATFORM_TOKEN
+            - name: REDIS_URL
+              value: redis://:Lh123456@11.129.9.138  # TODO
+            - name: REDIS_CLUSTER_MODE
+              value: "True"
+            - name: REDIS_USER_URL
+              value: redis://:aiwe@2022@11.129.9.175:6379
+            - name: REDIS_USER_CLUSTER_MODE
+              value: "True"
+            - name: K8S_ENABLE_REFRESH_TOKEN
+              value: "True"
+            - name: TASK_HOST
+              value: http://aiwe-quantplatform-tasks-service:8000
+            - name: WORKSPACE_HOST
+              value: http://aiwe-quantplatform-workspace-manager-api-service:80
+            - name: GATEWAY_HOST
+              value: http://aiwe-quantplatform-gateway-api-service:80
+            - name: WEB_HOST
+              value: http://aiwe-quantplatform-web.paasoa.cmbchina.cn
+            - name: AIWE_HOST
+              value: http://aiwe-quantplatform-web.paasoa.cmbchina.cn
+            - name: BUSINESS_ID
+              value: LX58AiweQuantPlatformUserservice
+            - name: DEPLOY_UNIT_ID
+              value: LX58_AiweQuantPlatformUserservice
+            - name: SERVICE_UNIT_ID
+              value: LX58@AiweQuantPlatformUserservice_PRD_PRD
+          image: [image]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "2"
+              memory: 2G
+            limits:
+              cpu: "2"
+              memory: 2G
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: aiwe-quantplatform-userservice-service
+  labels:
+    app: aiwe-quantplatform-userservice
+  namespace: lx58-aiwe
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: 8000
+      protocol: TCP
+      name: 8000-8000
+      port: 8000
+  selector:
+    app: aiwe-quantplatform-userservice
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: aiwe-quantplatform-userservice-api-route
+  labels:
+    app: aiwe-quantplatform-userservice
+  namespace: lx58-aiwe
+spec:
+  to:
+    kind: Service
+    name: aiwe-quantplatform-userservice-service
+  host: aiwe-quantplatform-api-userservice.paas.cmbchina.cn
+  port:
+    targetPort: 8000-8000

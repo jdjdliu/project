@@ -1,6 +1,6 @@
 import base64
 
-fname = "付款操作指南最新版2022年.txt"
+fname = "1.txt"
 
 
 def b():
