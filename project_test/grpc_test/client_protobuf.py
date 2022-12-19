@@ -20,4 +20,5 @@ res_json = {
     'name' : 'baby'
 }
 import json
+
 print(len(json.dumps(res_json)))
