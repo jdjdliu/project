@@ -1,0 +1,114 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: aiwe-quantplatform-userservice
+  labels:
+    app: aiwe-quantplatform-userservice
+  namespace: lx58-uat-aiwe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aiwe-quantplatform-userservice
+  template:
+    metadata:
+      labels:
+        app: aiwe-quantplatform-userservice
+    spec:
+      restartPolicy: Always
+      hostAliases:
+        - ip: "55.3.145.111"
+          hostnames:
+            - qplatformuat-0
+        - ip: "55.3.145.112"
+          hostnames:
+            - qplatformuat-1
+        - ip: "55.3.145.114"
+          hostnames:
+            - qplatformuat-2
+      containers:
+        - name: aiwe-quantplatform-userservice
+          livenessProbe: # 一个HTTP GET的liveness probe
+            httpGet:
+              path: /api/userservice/ping
+              port: 8000
+            initialDelaySceonds: 60 # 平台会在第一次探测前等待60s
+            timeoutSeconds: 120
+          readinessProbe: # 一个HTTP GET的readiness probe
+            httpGet:
+              path: /api/userservice/ping
+              port: 8000
+            initialDelaySceonds: 60 # 平台会在第一次探测前等待60s
+            timeoutSeconds: 120
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: MONGO_URL # TODD
+              value: >-
+                mongodb://quant:Qp%2312345678@qplatformuat-1:27017,qplatformuat-0:27017,qplatformuat-2:27017/aiwe_qp?replicaSet=qplatformuat
+            - name: MONGO_DB # TODD
+              value: aiwe_qp
+            - name: DB_URL
+              value: >-
+                mysql://somdbdev:aiwequantdb%231234@lx58aiwe.mysql.dbdns.cmbchina.cn:6446/aiwequantdb
+            - name: JWT_PUBLIC_KEY
+              value: >-
+                04231875fa10d73322a5d49a241f332255ef348675f3e136c58644952073201049e5ee2f4c83c81c04e7bb5e4dbd773f63d6ef83a48355fb8563bf73f61fb74ac8
+            - name: JWT_COOKIE_NAME
+              value: AIWE_QUANTPLATFORM_TOKEN
+            - name: REDIS_URL
+              value: redis://:Lh123456@55.50.41.156
+            - name: REDIS_CLUSTER_MODE
+              value: "True"
+            - name: REDIS_USER_URL
+              value: redis://:aiwe@123456@55.51.1.224:6379
+            - name: REDIS_USER_CLUSTER_MODE
+              value: "False"
+            - name: K8S_ENABLE_REFRESH_TOKEN
+              value: "True"
+            - name: TASK_HOST
+              value: http://aiwe-quantplatform-tasks-service:8000
+            - name: WORKSPACE_HOST
+              value: http://aiwe-quantplatform-workspace-manager-api-service:80
+            - name: GATEWAY_HOST
+              value: http://aiwe-quantplatform-gateway-api-service:80
+            - name: WEB_HOST
+              value: http://aiwe-quantplatform-web.paasuat.cmbchina.cn
+            - name: AIWE_HOST
+              value: http://aiwe-quantplatform-web.paasuat.cmbchina.cn
+            - name: BUSINESS_ID
+              value: LX58AiweQuantPlatformUserservice
+            - name: DEPLOY_UNIT_ID
+              value: LX58_AiweQuantPlatformUserservice
+            - name: SERVICE_UNIT_ID
+              value: LX58@AiweQuantPlatformUserservice_PRD_PRD
+          image: [image]
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "2"
+              memory: 2G
+            limits:
+              cpu: "2"
+              memory: 2G
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: aiwe-quantplatform-userservice-service
+  labels:
+    app: aiwe-quantplatform-userservice
+  namespace: lx58-uat-aiwe
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: 8000
+      protocol: TCP
+      name: 8000-8000
+      port: 8000
+  selector:
+    app: aiwe-quantplatform-userservice
