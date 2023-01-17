@@ -141,3 +141,4 @@ async def root():
 async def read_item(item_id: int):
     assert item_id != 0
     return {"item_id": item_id}
+
